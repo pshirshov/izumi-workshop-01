@@ -19,7 +19,7 @@ val GlobalSettings = new DefaultGlobalSettingsGroup {
       V.scala_212,
     ),
     addCompilerPlugin(R.kind_projector),
-    libraryDependencies ++= Seq(IzumiDeps.T.scalatest) ++ IzumiDeps.R.cats_all ++ IzumiDeps.R.zio,
+    libraryDependencies ++= Seq(Izumi.R.distage_plugins, IzumiDeps.T.scalatest) ++ IzumiDeps.R.cats_all ++ IzumiDeps.R.zio,
   )
 }
 
