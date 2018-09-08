@@ -52,15 +52,21 @@ val SbtSettings = new SettingsGroup {
 
 lazy val inRoot = In(".")
 
+lazy val inLib = In("lib").settings(GlobalSettings)
+
 lazy val inRoles = In("role").settings(GlobalSettings, RoleSettings)
 
 lazy val inApp = In("app").settings(GlobalSettings, AppSettings)
 
 lazy val inSbt = In("sbt").settings(SbtSettings)
 
+lazy val common = inLib.as.module
+
 lazy val usersRole = inRoles.as.module
+  .depends(common)
 
 lazy val accountsRole = inRoles.as.module
+  .depends(common)
 
 lazy val launcher = inApp.as.module
   .depends(usersRole, accountsRole)
