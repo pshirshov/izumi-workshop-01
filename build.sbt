@@ -19,7 +19,7 @@ lazy val AppSettings = new SettingsGroup {
 
 lazy val RoleSettings = new SettingsGroup {
   override val settings: Seq[sbt.Setting[_]] = Seq(
-    libraryDependencies ++= Seq(Izumi.R.distage_roles_api),
+    libraryDependencies ++= Seq(Izumi.R.distage_roles_api, Izumi.R.logstage_api_logger),
   )
 }
 

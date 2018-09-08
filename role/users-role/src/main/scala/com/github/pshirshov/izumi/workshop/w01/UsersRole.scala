@@ -1,9 +1,10 @@
 package com.github.pshirshov.izumi.workshop.w01
 
 import com.github.pshirshov.izumi.distage.roles.roles.RoleService
+import com.github.pshirshov.izumi.logstage.api.IzLogger
 
-class UsersRole extends RoleService{
+class UsersRole(logger: IzLogger) extends RoleService{
   override def start(): Unit = {
-    println("Hi!")
+    logger.info("Entrypoint reached: users role")
   }
 }
