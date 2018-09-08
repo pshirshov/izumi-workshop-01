@@ -21,4 +21,8 @@ class UsersRole[F[+ _, + _] : Bifunctor : BiRunnable](userStorage: UserStorage[F
 
     logger.info("TODO: here we may start an RPC or HTTP server and start serving requests...")
   }
+
+  override def stop(): Unit = {
+    logger.info("Exit reached: users role. TODO: here we may stop our RPC server")
+  }
 }
