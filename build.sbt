@@ -1,4 +1,6 @@
-import com.github.pshirshov.izumi.sbt.deps.IzumiDeps.V
+import com.github.pshirshov.izumi.sbt.deps.IzumiDeps
+import com.github.pshirshov.izumi.sbt.deps.IzumiDeps.{R, V}
+import sbt.Keys.libraryDependencies
 
 name := "distage-workshop"
 
@@ -10,6 +12,16 @@ organization in ThisBuild := "com.github.pshirshov.izumi.workshop.w01"
 
 
 enablePlugins(IzumiGitEnvironmentPlugin)
+
+val GlobalSettings = new DefaultGlobalSettingsGroup {
+  override val settings: Seq[sbt.Setting[_]] = Seq(
+    crossScalaVersions := Seq(
+      V.scala_212,
+    ),
+    addCompilerPlugin(R.kind_projector),
+    libraryDependencies ++= Seq(IzumiDeps.T.scalatest) ++ IzumiDeps.R.cats_all ++ IzumiDeps.R.zio,
+  )
+}
 
 lazy val AppSettings = new SettingsGroup {
   override val settings: Seq[sbt.Setting[_]] = Seq(
@@ -40,9 +52,9 @@ val SbtSettings = new SettingsGroup {
 
 lazy val inRoot = In(".")
 
-lazy val inRoles = In("role").settings(RoleSettings)
+lazy val inRoles = In("role").settings(GlobalSettings, RoleSettings)
 
-lazy val inApp = In("app").settings(AppSettings)
+lazy val inApp = In("app").settings(GlobalSettings, AppSettings)
 
 lazy val inSbt = In("sbt").settings(SbtSettings)
 
