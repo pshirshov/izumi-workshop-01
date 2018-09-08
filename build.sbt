@@ -26,3 +26,11 @@ lazy val launcher = inApp.as.module
 
 lazy val workshop = inRoot.as.root
   .transitiveAggregate(launcher)
+
+/*
+At this point use thse commands to setup project layout from sbt shell:
+
+newModule role/accounts-role
+newModule role/users-role
+newModule app/launcher
+*/
