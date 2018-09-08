@@ -1,4 +1,4 @@
-import com.github.pshirshov.izumi.sbt.deps.IzumiDeps
+import com.github.pshirshov.izumi.sbt.deps.IzumiDeps.V
 
 name := "distage-workshop"
 
@@ -23,12 +23,28 @@ lazy val RoleSettings = new SettingsGroup {
   )
 }
 
+val SbtSettings = new SettingsGroup {
+  override val settings: Seq[sbt.Setting[_]] = Seq(
+    Seq(
+      target ~= { t => t.toPath.resolve("primary").toFile }
+      , crossScalaVersions := Seq(
+        V.scala_212
+      )
+      , libraryDependencies ++= Seq(
+        "org.scala-sbt" % "sbt" % sbtVersion.value
+      )
+      , sbtPlugin := true
+    )
+  ).flatten
+}
+
 lazy val inRoot = In(".")
 
 lazy val inRoles = In("role").settings(RoleSettings)
 
 lazy val inApp = In("app").settings(AppSettings)
 
+lazy val inSbt = In("sbt").settings(SbtSettings)
 
 lazy val usersRole = inRoles.as.module
 
@@ -37,8 +53,13 @@ lazy val accountsRole = inRoles.as.module
 lazy val launcher = inApp.as.module
   .depends(usersRole, accountsRole)
 
+lazy val sbtBomWorkshop = inSbt.as
+  .module
+  .settings(withBuildInfo("com.github.pshirshov.izumi.workshop.sbt.deps", "Workshop"))
+
 lazy val workshop = inRoot.as.root
-  .transitiveAggregate(launcher)
+  .transitiveAggregate(launcher, sbtBomWorkshop)
+
 
 /*
 At this point use thse commands to setup project layout from sbt shell:
