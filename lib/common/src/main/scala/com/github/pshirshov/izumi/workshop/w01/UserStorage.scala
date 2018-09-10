@@ -26,3 +26,24 @@ class DummyUserStorage[F[+_, +_] : Bifunctor]
   override def findByEmail(email: Email): F[Nothing, List[User]] = storage.enumerate()
     .map(_.filter(_.email == email))
 }
+
+
+case class UserAccount(balance: BigDecimal)
+
+trait AccountStorage[F[_, _]] {
+  // We have a race here, not a production code!
+  def fetch(userId: UserId): F[StorageError, UserAccount]
+
+  def save(userId: UserId, account: UserAccount): F[Nothing, Unit]
+}
+
+class DummyAccountStorage[F[+_, +_] : Bifunctor]
+(
+  storage: AbstractStorage[F, UserId, UserAccount]
+) extends AccountStorage[F] {
+
+  override def fetch(userId: UserId): F[StorageError, UserAccount] = storage.fetch(userId)
+
+  override def save(userId: UserId, account: UserAccount): F[Nothing, Unit] = storage.store(userId, account)
+
+}
