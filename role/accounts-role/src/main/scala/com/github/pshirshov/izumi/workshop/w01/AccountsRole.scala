@@ -8,4 +8,8 @@ class AccountsRole[F[+_, +_]: Bifunctor](accountsStorage: AccountStorage[F], log
   override def start(): Unit = {
     logger.info("Entrypoint reached: accounts role")
   }
+
+  override def stop(): Unit = {
+    logger.info("Exit reached: accounts role")
+  }
 }

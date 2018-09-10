@@ -23,7 +23,12 @@ val GlobalSettings = new DefaultGlobalSettingsGroup {
   )
 }
 
+lazy val WithoutBadPlugins = new SettingsGroup {
+  override val disabledPlugins: Set[sbt.AutoPlugin] = Set(AssemblyPlugin)
+}
+
 lazy val AppSettings = new SettingsGroup {
+  override val plugins: Set[sbt.Plugins] = Set(AssemblyPlugin)
   override val settings: Seq[sbt.Setting[_]] = Seq(
     libraryDependencies ++= Seq(Izumi.R.distage_roles),
   )
@@ -50,15 +55,14 @@ val SbtSettings = new SettingsGroup {
   ).flatten
 }
 
-lazy val inRoot = In(".")
+lazy val inRoot = In(".").settings(WithoutBadPlugins)
+lazy val inLib = In("lib").settings(GlobalSettings, WithoutBadPlugins)
 
-lazy val inLib = In("lib").settings(GlobalSettings)
-
-lazy val inRoles = In("role").settings(GlobalSettings, RoleSettings)
+lazy val inRoles = In("role").settings(GlobalSettings, RoleSettings, WithoutBadPlugins)
 
 lazy val inApp = In("app").settings(GlobalSettings, AppSettings)
 
-lazy val inSbt = In("sbt").settings(SbtSettings)
+lazy val inSbt = In("sbt").settings(SbtSettings, WithoutBadPlugins)
 
 lazy val common = inLib.as.module
 
