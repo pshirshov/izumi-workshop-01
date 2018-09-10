@@ -40,6 +40,12 @@ class ComplexTest extends WordSpec {
     }).merge)
 
     val context = injector.produce(plan)
+
+    context.instances.foreach {
+      i =>
+        println(i)
+    }
+
     val fixture = context.get[T]
     f(fixture)
   }
@@ -52,8 +58,8 @@ class ComplexTest extends WordSpec {
     }
 
     "inject tuples" in dit {
-      (fixture: UsersRole[IO], logger: IzLogger) =>
-        assert(fixture.isInstanceOf[UsersRole[IO]])
+      (fixture: AccountsRole[IO], logger: IzLogger) =>
+        assert(fixture.isInstanceOf[AccountsRole[IO]])
         logger.info(s"Fixture: $fixture")
     }
   }
