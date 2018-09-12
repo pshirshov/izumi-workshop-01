@@ -17,3 +17,9 @@ echo 'eval "$(jenv init -)"' >> ~/.bash_profile
 jenv global 1.8
 # restart terminal at this point
 ```
+
+Wanna more?
+-----------
+
+1. Relevant slides: https://github.com/7mind/slides/blob/master/02-roles/target/roles.pdf
+2. The Principle behind: https://github.com/7mind/slides/blob/master/03-pper-basics/target/pper-base.pdf
