@@ -1,6 +1,6 @@
 package com.github.pshirshov.izumi.workshop.w01
 
-import Bifunctor._
+import BifunctorIO._
 
 case class UserId(id: String) extends AnyVal
 
@@ -16,7 +16,7 @@ trait UserStorage[F[_, _]] {
   def findByEmail(email: Email): F[Nothing, List[User]]
 }
 
-class DummyUserStorage[F[+_, +_] : Bifunctor]
+class DummyUserStorage[F[+_, +_] : BifunctorIO]
 (
   storage: AbstractStorage[F, UserId, User]
 ) extends UserStorage[F] {
@@ -37,7 +37,7 @@ trait AccountStorage[F[_, _]] {
   def save(userId: UserId, account: UserAccount): F[Nothing, Unit]
 }
 
-class DummyAccountStorage[F[+_, +_] : Bifunctor]
+class DummyAccountStorage[F[+_, +_] : BifunctorIO]
 (
   storage: AbstractStorage[F, UserId, UserAccount]
 ) extends AccountStorage[F] {

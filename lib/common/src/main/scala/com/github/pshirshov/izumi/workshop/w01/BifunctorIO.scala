@@ -6,7 +6,7 @@ import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
-trait Bifunctor[R[+ _, + _]] extends {
+trait BifunctorIO[R[+ _, + _]] extends {
   type Or[+E, +V] = R[E, V]
   type Just[+V] = R[Nothing, V]
 
@@ -57,11 +57,11 @@ trait Bifunctor[R[+ _, + _]] extends {
   @inline def retryOrElse[A, E, A2 >: A, E2](r: R[E, A])(duration: FiniteDuration, orElse: => R[E2, A2]): R[E2, A2]
 }
 
-object Bifunctor {
+object BifunctorIO {
 
-  def apply[R[+ _, + _] : Bifunctor]: Bifunctor[R] = implicitly
+  def apply[R[+ _, + _] : BifunctorIO]: BifunctorIO[R] = implicitly
 
-  final class BIOOps[R[+ _, + _], E, A](private val r: R[E, A])(implicit private val R: Bifunctor[R]) {
+  final class BIOOps[R[+ _, + _], E, A](private val r: R[E, A])(implicit private val R: BifunctorIO[R]) {
     @inline def map[B](f: A => B): R[E, B] = R.map(r)(f)
 
     @inline def as[B](b: B): R[E, B] = R.map(r)(_ => b)
@@ -88,16 +88,16 @@ object Bifunctor {
     @inline def catchAll[E2, A2 >: A](h: E => R[E2, A2]): R[E2, A2] = R.redeem(r)(h, R.now)
   }
 
-  final class BIOFlattenOps[R[+ _, + _], E, A](private val r: R[E, R[E, A]])(implicit private val R: Bifunctor[R]) {
+  final class BIOFlattenOps[R[+ _, + _], E, A](private val r: R[E, R[E, A]])(implicit private val R: BifunctorIO[R]) {
     @inline def flatten: R[E, A] = R.flatMap(r)(a => a)
   }
 
-  @inline implicit def ToOps[R[+ _, + _] : Bifunctor, E, A](self: R[E, A]): BIOOps[R, E, A] = new BIOOps[R, E, A](self)
+  @inline implicit def ToOps[R[+ _, + _] : BifunctorIO, E, A](self: R[E, A]): BIOOps[R, E, A] = new BIOOps[R, E, A](self)
 
-  @inline implicit def ToFlattenOps[R[+ _, + _] : Bifunctor, E, A](self: R[E, R[E, A]]): BIOFlattenOps[R, E, A] = new BIOFlattenOps[R, E, A](self)
+  @inline implicit def ToFlattenOps[R[+ _, + _] : BifunctorIO, E, A](self: R[E, R[E, A]]): BIOFlattenOps[R, E, A] = new BIOFlattenOps[R, E, A](self)
 
 
-  implicit object BifunctorZio extends Bifunctor[IO] {
+  implicit object BifunctorZio extends BifunctorIO[IO] {
     @inline def bracket0[E, A, B](acquire: IO[E, A])(release: A => IO[Nothing, Unit])(use: A => IO[E, B]): IO[E, B] =
       IO.bracket0(acquire)((v, _: ExitResult[E, B]) => release(v))(use)
 

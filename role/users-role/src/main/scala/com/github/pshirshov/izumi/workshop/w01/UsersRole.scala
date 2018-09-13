@@ -2,10 +2,10 @@ package com.github.pshirshov.izumi.workshop.w01
 
 import com.github.pshirshov.izumi.distage.roles.roles.{RoleId, RoleService}
 import com.github.pshirshov.izumi.logstage.api.IzLogger
-import Bifunctor._
+import BifunctorIO._
 
 @RoleId("users")
-class UsersRole[F[+ _, + _] : Bifunctor : BiRunnable](userStorage: UserStorage[F], logger: IzLogger) extends RoleService {
+class UsersRole[F[+ _, + _] : BifunctorIO : BiRunnable](userStorage: UserStorage[F], logger: IzLogger) extends RoleService {
   override def start(): Unit = {
     logger.info("Entrypoint reached: users role")
 

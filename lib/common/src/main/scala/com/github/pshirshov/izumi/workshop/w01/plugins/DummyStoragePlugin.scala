@@ -19,11 +19,11 @@ class DummyStoragePlugin extends DummyStorageModule[IO] with PluginDef {
 }
 
 // this is just for demo purposes
-class ProductionStorage[F[+_, +_] : Bifunctor, K, V]
+class ProductionStorage[F[+_, +_] : BifunctorIO, K, V]
   extends DummyStorage[F, K, V]
-class ProductionUserStorage[F[+_, +_] : Bifunctor](storage: AbstractStorage[F, UserId, User])
+class ProductionUserStorage[F[+_, +_] : BifunctorIO](storage: AbstractStorage[F, UserId, User])
   extends DummyUserStorage[F](storage)
-class ProductionAccountStorage[F[+_, +_] : Bifunctor](storage: AbstractStorage[F, UserId, UserAccount])
+class ProductionAccountStorage[F[+_, +_] : BifunctorIO](storage: AbstractStorage[F, UserId, UserAccount])
   extends DummyAccountStorage[F](storage)
 
 abstract class ProductionStorageModule[F[+ _, + _] : TagKK] extends ModuleDef {

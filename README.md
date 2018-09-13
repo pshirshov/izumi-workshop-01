@@ -18,6 +18,9 @@ jenv global 1.8
 # restart terminal at this point
 ```
 
+A snippet we are gonna reuse: [Bifunctor IO wrapper](lib/common/src/main/scala/com/github/pshirshov/izumi/workshop/w01/BifunctorIO.scala)
+
+
 Wanna more?
 -----------
 
@@ -26,3 +29,6 @@ Wanna more?
 3. Toolkit: https://github.com/pshirshov/izumi-r2
 4. Docs: https://izumi.7mind.io/
 5. Company: https://7mind.io
+
+
+

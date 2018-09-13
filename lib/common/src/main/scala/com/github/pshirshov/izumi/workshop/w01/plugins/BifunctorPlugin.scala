@@ -6,6 +6,6 @@ import scalaz.zio.IO
 
 
 class BifunctorPlugin extends PluginDef {
-  make[Bifunctor[IO]].from(Bifunctor.BifunctorZio)
+  make[BifunctorIO[IO]].from(BifunctorIO.BifunctorZio)
   make[BiRunnable[IO]].from(BiRunnable.ZIORunner)
 }
