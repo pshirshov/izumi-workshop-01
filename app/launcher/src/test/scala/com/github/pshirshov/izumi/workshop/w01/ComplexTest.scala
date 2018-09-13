@@ -1,5 +1,9 @@
 package com.github.pshirshov.izumi.workshop.w01
 
+import com.github.pshirshov.izumi.distage.model.definition.Binding.SingletonBinding
+import com.github.pshirshov.izumi.distage.model.definition.{ImplDef, Module}
+import com.github.pshirshov.izumi.distage.model.providers.ProviderMagnet
+import com.github.pshirshov.izumi.distage.model.reflection.universe.RuntimeDIUniverse
 import com.github.pshirshov.izumi.distage.planning.gc.TracingGcModule
 import com.github.pshirshov.izumi.distage.plugins.load.PluginLoaderDefaultImpl
 import com.github.pshirshov.izumi.distage.plugins.load.PluginLoaderDefaultImpl.PluginConfig
@@ -14,11 +18,12 @@ import org.scalatest.WordSpec
 import scalaz.zio.IO
 
 class ComplexTest extends WordSpec {
-  def dit[T1: Tag, T2: Tag](f: (T1, T2) => Unit): Unit = {
-    di((a: (T1, T2)) => f(a._1, a._2))
+  def di[T: Tag](f: T => Any): Unit = {
+    val providerMagnet: ProviderMagnet[Unit] = { x: T => f(x); () }
+    di(providerMagnet)
   }
 
-  def di[T: Tag](f: T => Unit): Unit = {
+  def di(f: ProviderMagnet[Unit]): Unit = {
     val modules = new PluginLoaderDefaultImpl(
       PluginConfig(debug = false, Seq("com.github.pshirshov.izumi.workshop.w01"), Seq.empty)
     ).load()
@@ -32,12 +37,20 @@ class ComplexTest extends WordSpec {
 
     val primaryModule = mergeStrategy.merge(modules).definition
 
-    val injector = Injector
-      .bootstrap(overrides = Seq[BootstrapModule](new TracingGcModule(Set(DIKey.get[T]))).merge)
+    val roots: Set[RuntimeDIUniverse.DIKey] = f.get.diKeys.toSet
 
-    val plan = injector.plan(Seq(primaryModule, new LogstageModule(IzLogger.simpleRouter(Log.Level.Debug, ConsoleSink.ColoredConsoleSink)), new ModuleDef {
-      make[T]
-    }).merge)
+    val injector = Injector
+      .bootstrap(overrides = Seq[BootstrapModule](new TracingGcModule(roots)).merge)
+
+    val fixtureModule = Module.make(roots.map {
+      key => SingletonBinding(key, ImplDef.TypeImpl(key.tpe))
+    })
+    val plan = injector.plan(
+      Seq(fixtureModule
+        , primaryModule
+        , new LogstageModule(IzLogger.simpleRouter(Log.Level.Debug, ConsoleSink.ColoredConsoleSink))
+      ).overrideLeft
+    )
 
     val context = injector.produce(plan)
 
@@ -46,8 +59,7 @@ class ComplexTest extends WordSpec {
         println(i)
     }
 
-    val fixture = context.get[T]
-    f(fixture)
+    context.run(f)
   }
 
   "DI test" must {
@@ -57,10 +69,21 @@ class ComplexTest extends WordSpec {
         println(s"Fixture: $fixture")
     }
 
-    "inject tuples" in dit {
+    "inject tuples" in di [(AccountsRole[IO], IzLogger)]  {
+      case (fixture: AccountsRole[IO], logger: IzLogger) =>
+        assert(fixture.isInstanceOf[AccountsRole[IO]])
+        logger.info(s"Fixture: $fixture")
+    }
+
+    "inject multiple arguments" in di {
       (fixture: AccountsRole[IO], logger: IzLogger) =>
         assert(fixture.isInstanceOf[AccountsRole[IO]])
         logger.info(s"Fixture: $fixture")
+    }
+
+    "inject abstract arguments" in di {
+      storage: UserStorage[IO] =>
+        assert(storage.isInstanceOf[DummyUserStorage[IO]])
     }
   }
 }
