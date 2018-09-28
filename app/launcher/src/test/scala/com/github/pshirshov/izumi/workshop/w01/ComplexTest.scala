@@ -17,6 +17,8 @@ import distage._
 import org.scalatest.WordSpec
 import scalaz.zio.IO
 
+import scala.util.Success
+
 class ComplexTest extends WordSpec {
   def di[T: Tag](f: T => Any): Unit = {
     val providerMagnet: ProviderMagnet[Unit] = { x: T => f(x); () }
@@ -35,19 +37,19 @@ class ComplexTest extends WordSpec {
       , Map.empty
     ))
 
-    val primaryModule = mergeStrategy.merge(modules).definition
+    val primaryModule: ModuleBase = mergeStrategy.merge(modules).definition
 
     val roots: Set[RuntimeDIUniverse.DIKey] = f.get.diKeys.toSet
 
     val injector = Injector
       .bootstrap(overrides = Seq[BootstrapModule](new TracingGcModule(roots)).merge)
 
-    val fixtureModule = Module.make(roots.map {
-      key => SingletonBinding(key, ImplDef.TypeImpl(key.tpe))
-    })
+//    val fixtureModule = Module.make(roots.map {
+//      key => SingletonBinding(key, ImplDef.TypeImpl(key.tpe))
+//    })
     val plan = injector.plan(
-      Seq(fixtureModule
-        , primaryModule
+      Seq(/*fixtureModule*/
+        primaryModule
         , new LogstageModule(IzLogger.simpleRouter(Log.Level.Debug, ConsoleSink.ColoredConsoleSink))
       ).overrideLeft
     )
@@ -84,6 +86,22 @@ class ComplexTest extends WordSpec {
     "inject abstract arguments" in di {
       storage: UserStorage[IO] =>
         assert(storage.isInstanceOf[DummyUserStorage[IO]])
+    }
+
+    "support accounting" in di {
+      storage: AccountingService[IO] =>
+        val id = UserId("user1")
+        val maybeBalance = for {
+          _ <- storage.createAccount(id)
+          _ <- storage.updateBalance(id, 10)
+          balance <- storage.getBalance(id)
+        } yield {
+          balance
+        }
+        import BiRunnable._
+        assert(storage.isInstanceOf[AccountingService[IO]])
+        assert(BiRunnable[IO].unsafeRunSync(maybeBalance) == Success(Right(10)))
+
     }
   }
 }

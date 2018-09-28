@@ -2,7 +2,7 @@
   <configuration default="false" name="Launcher: users + accounts" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.github.pshirshov.izumi.workshop.w01.Launcher" />
     <module name="launcher" />
-    <option name="PROGRAM_PARAMETERS" value="users accounts" />
+    <option name="PROGRAM_PARAMETERS" value="-lj users accounts" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.github.pshirshov.izumi.workshop.w01.*" />

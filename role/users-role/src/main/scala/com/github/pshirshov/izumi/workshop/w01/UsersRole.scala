@@ -5,13 +5,19 @@ import com.github.pshirshov.izumi.logstage.api.IzLogger
 import BifunctorIO._
 
 @RoleId("users")
-class UsersRole[F[+ _, + _] : BifunctorIO : BiRunnable](userStorage: UserStorage[F], logger: IzLogger) extends RoleService {
+class UsersRole[F[+ _, + _] : BifunctorIO : BiRunnable]
+(userStorage: UserStorage[F], logger: IzLogger)
+  extends RoleService {
   override def start(): Unit = {
     logger.info("Entrypoint reached: users role")
 
     val logic = for {
-      _ <- userStorage.saveUser(User(UserId("user-01"), PersonName("John", "Doe"), Email("john.doe@gmail.com")))
-      _ <- userStorage.saveUser(User(UserId("user-02"), PersonName("Will", "Smith"), Email("will.smith@gmail.com")))
+      _ <- userStorage.saveUser(
+        User(UserId("user-01"), PersonName("John", "Doe"), Email("john.doe@gmail.com"))
+      )
+      _ <- userStorage.saveUser(
+        User(UserId("user-02"), PersonName("Will", "Smith"), Email("will.smith@gmail.com"))
+      )
       john <- userStorage.findByEmail(Email("john.doe@gmail.com"))
     } yield {
       john
